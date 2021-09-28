@@ -800,7 +800,7 @@ void environment_setup()
     }
 }
 
-void handle_zero_score(Group *test_group, int test_num)
+void handle_bytest_score(Group *test_group, int test_num)
 {
     if (test_num == test_group->get_last()) {
         if (test_group->is_zero_set()) {
@@ -856,25 +856,7 @@ int main(int argc, char *argv[])
             g->add_passed_test(test_num);
             ++test_num;
         } else if (g->get_test_score() >= 0) {
-            // by-test score, just go on
-	    handle_zero_score(g, test_num);
-
-            if (test_num == g->get_last()) {
-                if (g->is_zero_set()) {
-                    char buf[1024];
-                    if (locale_id == 1) {
-                        snprintf(buf, sizeof(buf), "Группа тестов %s (%d-%d) оценена в 0 баллов, "
-                                 "так как были пройдены только специальные тесты.\n",
-                                 g->get_group_id().c_str(), g->get_first(), g->get_last());
-                    } else {
-                        snprintf(buf, sizeof(buf), "Test group %s (%d-%d) is scored 0 points "
-                                 "because only specific tests were passed.\n",
-                                 g->get_group_id().c_str(), g->get_first(), g->get_last());
-                    }
-                    g->set_total_score(0);
-                    g->set_comment(string(buf));
-                }
-            }
+	    handle_bytest_score(g, test_num);
             ++test_num;
         } else if (g->get_test_all()) {
             // test everything even if fail
