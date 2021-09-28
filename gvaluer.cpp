@@ -781,6 +781,25 @@ void parse_args(int argc, char** argv, string& selfdir, string& self)
     }
 }
 
+void environment_setup()
+{
+    if (!getenv("EJUDGE")) die("EJUDGE environment variable must be set");
+    if (getenv("EJUDGE_USER_SCORE")) user_score_flag = true;
+    if (getenv("EJUDGE_MARKED")) marked_flag = true;
+    if (getenv("EJUDGE_INTERACTIVE")) interactive_flag = true;
+    if (getenv("EJUDGE_REJUDGE")) rejudge_flag = true;
+    {
+        char *ls = getenv("EJUDGE_LOCALE");
+        if (ls) {
+            try {
+                locale_id = stoi(ls);
+            } catch (...) {
+            }
+            if (locale_id < 0) locale_id = 0;
+        }
+    }
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 3 || argc > 4) die("invalid number of arguments");
@@ -790,6 +809,8 @@ int main(int argc, char *argv[])
     int valuer_marked = 0;
 
     parse_args(argc, argv, selfdir, self);
+
+    environment_setup();
 
     if (!getenv("EJUDGE")) die("EJUDGE environment variable must be set");
     if (getenv("EJUDGE_USER_SCORE")) user_score_flag = true;
