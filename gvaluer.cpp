@@ -800,7 +800,7 @@ void environment_setup()
     }
 }
 
-void handle_bytest_score(Group *test_group, int &test_num)
+void handle_bytest_score(Group *test_group, int test_num)
 {
     if (test_num == test_group->get_last()) {
         if (test_group->is_zero_set()) {
@@ -824,7 +824,7 @@ void handle_bytest_score(Group *test_group, int &test_num)
     }
 }
 
-void handle_test_stop(Group *test_group, int &test_num)
+void handle_test_stop(Group *test_group, int test_num)
 {
     if (test_num < test_group->get_last() && !test_group->get_offline()) {
         char buf[1024];
