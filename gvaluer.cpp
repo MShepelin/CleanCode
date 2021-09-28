@@ -379,31 +379,9 @@ public:
     void next_token()
     {
 	find_next_char();
-        
-	if (in_c == EOF) {
-            t_type = T_EOF;
-            token = "";
-            return;
-        }
-        if (isalnum(in_c) || in_c == '_') {
-            token = "";
-            t_type = T_IDENT;
-            t_line = c_line;
-            t_pos = c_pos;
-            while (isalnum(in_c) || in_c == '_') {
-                token += char(in_c);
-                next_char();
-            }
-            return;
-        }
-        if (in_c == ';' || in_c == '{' || in_c == '}' || in_c == '-' || in_c == ',') {
-            t_line = c_line;
-            t_pos = c_pos;
-            token = ";";
-            t_type = in_c;
-            next_char();
-            return;
-        }
+	if (handleEOF()) return;
+	if (handleNamingToken()) return;
+	if (handleSeparatingToken()) return;
         scan_error("invalid character");
     }
 
