@@ -297,6 +297,17 @@ private:
     Global global;
     vector<Group> groups;
 
+private:
+    void find_next_char()
+    {
+	while (1) {
+            while (isspace(in_c)) next_char();
+            if (in_c != '#') break;
+            while (in_c != EOF && in_c != '\n') next_char();
+            if (in_c == '\n') next_char();
+        }
+    }
+
 public:
     ConfigParser()
     {
@@ -325,13 +336,9 @@ public:
 
     void next_token()
     {
-        while (1) {
-            while (isspace(in_c)) next_char();
-            if (in_c != '#') break;
-            while (in_c != EOF && in_c != '\n') next_char();
-            if (in_c == '\n') next_char();
-        }
-        if (in_c == EOF) {
+	find_next_char();
+        
+	if (in_c == EOF) {
             t_type = T_EOF;
             token = "";
             return;
