@@ -408,7 +408,7 @@ public:
         bool has_stat_to_judges = false;
         bool has_stat_to_users = false;
 
-        if (token != "group") parse_error("'group' expected");
+	if (token != "group") parse_error("'group' expected");
         next_token();
         if (t_type != T_IDENT) parse_error("IDENT expected");
         if (find_group(token) != NULL)
@@ -757,14 +757,8 @@ Group::meet_requirements(const ConfigParser &cfg, const Group *&grp) const
     return false;
 }
 
-int
-main(int argc, char *argv[])
+void parse_args(int argc, char** argv, string& selfdir, string& self)
 {
-    if (argc < 3 || argc > 4) die("invalid number of arguments");
-
-    string self(argv[0]);
-    string selfdir;
-    int valuer_marked = 0;
     if (argc == 3) {
         size_t pos = self.find_last_of('/');
         if (pos == string::npos) {
@@ -785,6 +779,17 @@ main(int argc, char *argv[])
     } else {
         selfdir = argv[3];
     }
+}
+
+int main(int argc, char *argv[])
+{
+    if (argc < 3 || argc > 4) die("invalid number of arguments");
+
+    string self(argv[0]);
+    string selfdir;
+    int valuer_marked = 0;
+
+    parse_args(argc, argv, selfdir, self);
 
     if (!getenv("EJUDGE")) die("EJUDGE environment variable must be set");
     if (getenv("EJUDGE_USER_SCORE")) user_score_flag = true;
