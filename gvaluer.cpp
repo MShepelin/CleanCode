@@ -847,6 +847,39 @@ void handle_test_stop(Group *test_group, int test_num)
     }
 }
 
+#define CONTINUE_READING 1
+#define GROUP_READY 0
+
+int analyse_test_group(Group *test_group, int& test_num, int t_status)
+{
+    if (test_group == NULL) die("unexpected test number %d", test_num);
+
+    if (t_status == RUN_OK) {
+        // just go to the next test...
+        test_group->inc_passed_count();
+        test_group->add_total_score();
+        test_group->add_passed_test(test_num);
+        ++test_num;
+    } else if (test_group->get_test_score() >= 0) {
+        handle_bytest_score(test_group, test_num);
+        ++test_num;
+    } else if (test_group->get_test_all()) {
+        // test everything even if fail
+        ++test_num;
+    } else {
+        handle_test_stop(test_group, test_num);
+        test_num = test_group->get_last() + 1;
+    }
+
+    if (test_num <= test_group->get_last()) {
+        printf("%d\n", -1);
+        fflush(stdout);
+        return CONTINUE_READING;
+    }
+
+    return GROUP_READY;
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 3 || argc > 4) die("invalid number of arguments");
@@ -868,31 +901,12 @@ int main(int argc, char *argv[])
     if (scanf("%d", &total_count) != 1) die("expected the count of tests");
     if (total_count != -1) die("count value must be -1");
 
-    int test_num = 1, t_status, t_score, t_time;
+    int test_num = 1, t_status = 0, t_score = 0, t_time = 0;
     while (scanf("%d%d%d", &t_status, &t_score, &t_time) == 3) {
-        Group *g = parser.find_group(test_num);
-        if (g == NULL) die("unexpected test number %d", test_num);
-        if (t_status == RUN_OK) {
-            // just go to the next test...
-            g->inc_passed_count();
-            g->add_total_score();
-            g->add_passed_test(test_num);
-            ++test_num;
-        } else if (g->get_test_score() >= 0) {
-	    handle_bytest_score(g, test_num);
-            ++test_num;
-        } else if (g->get_test_all()) {
-            // test everything even if fail
-            ++test_num;
-        } else {
-            handle_test_stop(g, test_num);
-            test_num = g->get_last() + 1;
-        }
-        if (test_num <= g->get_last()) {
-            printf("%d\n", -1);
-            fflush(stdout);
-            continue;
-        }
+       	Group *g = parser.find_group(test_num);
+        
+	if (analyse_test_group(g, test_num, t_status) == CONTINUE_READING) continue;
+
         const Group *gg = NULL;
         while ((g = parser.find_group(test_num)) && !g->meet_requirements(parser, gg)) {
             if (!g->get_offline()) {
