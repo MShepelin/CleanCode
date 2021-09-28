@@ -800,7 +800,7 @@ void environment_setup()
     }
 }
 
-void handle_bytest_score(Group *test_group, int test_num)
+void handle_bytest_score(Group *test_group, int &test_num)
 {
     if (test_num == test_group->get_last()) {
         if (test_group->is_zero_set()) {
@@ -824,16 +824,39 @@ void handle_bytest_score(Group *test_group, int test_num)
     }
 }
 
+void handle_test_stop(Group *test_group, int &test_num)
+{
+    if (test_num < test_group->get_last() && !test_group->get_offline()) {
+        char buf[1024];
+        if (locale_id == 1) {
+            snprintf(buf, sizeof(buf), "Тестирование на тестах %d-%d не выполнялось, "
+                             "так как тест %d не пройден, и оценка за группу тестов %s - 0 баллов.\n",
+                             test_num + 1, 
+			     test_group->get_last(), 
+			     test_num, 
+			     test_group->get_group_id().c_str());
+            } else {
+                    snprintf(buf, sizeof(buf), "Testing on tests %d-%d has not been performed, "
+                             "as test %d has not passed, and test group '%s' score is 0.\n",
+                             test_num + 1, 
+			     test_group->get_last(), 
+			     test_num, 
+			     test_group->get_group_id().c_str());
+            }
+            test_group->set_comment(string(buf));
+    }
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 3 || argc > 4) die("invalid number of arguments");
+    
+    int valuer_marked = 0;
 
     string self(argv[0]);
     string selfdir;
-    int valuer_marked = 0;
-
     parse_args(argc, argv, selfdir, self);
-
+    
     environment_setup();
 
     string configpath = selfdir + "/valuer.cfg";
@@ -862,19 +885,7 @@ int main(int argc, char *argv[])
             // test everything even if fail
             ++test_num;
         } else {
-            if (test_num < g->get_last() && !g->get_offline()) {
-                char buf[1024];
-                if (locale_id == 1) {
-                    snprintf(buf, sizeof(buf), "Тестирование на тестах %d-%d не выполнялось, "
-                             "так как тест %d не пройден, и оценка за группу тестов %s - 0 баллов.\n",
-                             test_num + 1, g->get_last(), test_num, g->get_group_id().c_str());
-                } else {
-                    snprintf(buf, sizeof(buf), "Testing on tests %d-%d has not been performed, "
-                             "as test %d has not passed, and test group '%s' score is 0.\n",
-                             test_num + 1, g->get_last(), test_num, g->get_group_id().c_str());
-                }
-                g->set_comment(string(buf));
-            }
+            handle_test_stop(g, test_num);
             test_num = g->get_last() + 1;
         }
         if (test_num <= g->get_last()) {
