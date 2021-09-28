@@ -22,6 +22,7 @@
 #include <vector>
 #include <algorithm>
 #include <set>
+#include <unordered_map>
 
 using namespace std;
 
@@ -50,6 +51,29 @@ enum
   RUN_SUMMONED         = 23,
 };
 
+static unordered_map<string, int> string_to_status = { { "AC", RUN_ACCEPTED } 
+                                                   , { "CE", RUN_COMPILE_ERR }
+						   , { "CF", RUN_CHECK_FAILED }
+						   , { "DQ", RUN_DISQUALIFIED }
+						   , { "IG", RUN_IGNORED }
+						   , { "ML", RUN_MEM_LIMIT_ERR }
+						   , { "OK", RUN_OK }
+						   , { "PD", RUN_PENDING }
+						   , { "PE", RUN_PRESENTATION_ERR }
+						   , { "PR", RUN_PENDING_REVIEW }
+						   , { "PT", RUN_PARTIAL }
+						   , { "SE", RUN_SECURITY_ERR }
+						   , { "SK", RUN_SKIPPED }
+						   , { "SM", RUN_SUMMONED }
+						   , { "SV", RUN_STYLE_ERR }
+						   , { "SY", RUN_SYNC_ERR }
+						   , { "RJ", RUN_REJECTED }
+						   , { "RT", RUN_RUN_TIME_ERR }
+						   , { "TL", RUN_TIME_LIMIT_ERR }
+						   , { "WA", RUN_WRONG_ANSWER_ERR }
+						   , { "WT", RUN_WALL_TIME_LIMIT_ERR }
+                                                   };
+
 static void
 die(const char *, ...)
     __attribute__((noreturn, format(printf, 1, 2)));
@@ -76,43 +100,14 @@ static int locale_id = 0;
 static int parse_status(const string &str)
 {
     if (str.length() != 2) return -1;
-    char c1 = toupper(str[0]);
-    char c2 = toupper(str[1]);
-    if (c1 == 'A') {
-        if (c2 == 'C') return RUN_ACCEPTED;
-    } else if (c1 == 'C') {
-        if (c2 == 'E') return RUN_COMPILE_ERR;
-        if (c2 == 'F') return RUN_CHECK_FAILED;
-    } else if (c1 == 'D') {
-        if (c2 == 'Q') return RUN_DISQUALIFIED;
-    } else if (c1 == 'I') {
-        if (c2 == 'G') return RUN_IGNORED;
-    } else if (c1 == 'M') {
-        if (c2 == 'L') return RUN_MEM_LIMIT_ERR;
-    } else if (c1 == 'O') {
-        if (c2 == 'K') return RUN_OK;
-    } else if (c1 == 'P') {
-        if (c2 == 'D') return RUN_PENDING;
-        if (c2 == 'E') return RUN_PRESENTATION_ERR;
-        if (c2 == 'R') return RUN_PENDING_REVIEW;
-        if (c2 == 'T') return RUN_PARTIAL;
-    } else if (c1 == 'S') {
-        if (c2 == 'E') return RUN_SECURITY_ERR;
-        if (c2 == 'K') return RUN_SKIPPED;
-        if (c2 == 'M') return RUN_SUMMONED;
-        if (c2 == 'V') return RUN_STYLE_ERR;
-        if (c2 == 'Y') return RUN_SYNC_ERR;
-    } else if (c1 == 'R') {
-        if (c2 == 'J') return RUN_REJECTED;
-        if (c2 == 'T') return RUN_RUN_TIME_ERR;
-    } else if (c1 == 'T') {
-        if (c2 == 'L') return RUN_TIME_LIMIT_ERR;
-    } else if (c1 == 'W') {
-        if (c2 == 'A') return RUN_WRONG_ANSWER_ERR;
-        if (c2 == 'T') return RUN_WALL_TIME_LIMIT_ERR;
-    }
+    string status_string = str;
 
-    return -1;
+    status_string[0] = toupper(status_string[0]);
+    status_string[1] = toupper(status_string[1]);
+
+    if (string_to_status.find(status_string) == string_to_status.end()) return -1;
+
+    return string_to_status[str];
 }
 
 class ConfigParser;
@@ -133,6 +128,8 @@ class Group
     int score = 0;
     int test_score = -1;
     int pass_if_count = -1;
+    int user_status = -1;
+
     int user_status = -1;
 
     int passed_count = 0;
@@ -865,8 +862,6 @@ main(int argc, char *argv[])
                 if (locale_id == 1) {
                     snprintf(buf, sizeof(buf), "Тестирование на тестах %d-%d не будет выполняться после окончания тура, "
                              "так как не пройдена одна из требуемых групп %s.\n",
-                             g->get_first(), g->get_last(), gg->get_group_id().c_str());
-                } else {
                     snprintf(buf, sizeof(buf), "Testing on tests %d-%d will not be performed after the tour finish, "
                              "as one of the required groups '%s' has not passed.\n",
                              g->get_first(), g->get_last(), gg->get_group_id().c_str());
