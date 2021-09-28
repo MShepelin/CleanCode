@@ -800,6 +800,30 @@ void environment_setup()
     }
 }
 
+void handle_zero_score(Group *test_group, int test_num)
+{
+    if (test_num == test_group->get_last()) {
+        if (test_group->is_zero_set()) {
+            char buf[1024];
+            if (locale_id == 1) {
+                snprintf(buf, sizeof(buf), "Группа тестов %s (%d-%d) оценена в 0 баллов, "
+                                 "так как были пройдены только специальные тесты.\n",
+                                 test_group->get_group_id().c_str(), 
+				 test_group->get_first(), 
+				 test_group->get_last());
+             } else {
+                snprintf(buf, sizeof(buf), "Test group %s (%d-%d) is scored 0 points "
+                                 "because only specific tests were passed.\n",
+                                 test_group->get_group_id().c_str(), 
+				 test_group->get_first(),
+				 test_group->get_last());
+             }
+             test_group->set_total_score(0);
+             test_group->set_comment(string(buf));
+         }
+    }
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 3 || argc > 4) die("invalid number of arguments");
@@ -811,22 +835,6 @@ int main(int argc, char *argv[])
     parse_args(argc, argv, selfdir, self);
 
     environment_setup();
-
-    if (!getenv("EJUDGE")) die("EJUDGE environment variable must be set");
-    if (getenv("EJUDGE_USER_SCORE")) user_score_flag = true;
-    if (getenv("EJUDGE_MARKED")) marked_flag = true;
-    if (getenv("EJUDGE_INTERACTIVE")) interactive_flag = true;
-    if (getenv("EJUDGE_REJUDGE")) rejudge_flag = true;
-    {
-        char *ls = getenv("EJUDGE_LOCALE");
-        if (ls) {
-            try {
-                locale_id = stoi(ls);
-            } catch (...) {
-            }
-            if (locale_id < 0) locale_id = 0;
-        }
-    }
 
     string configpath = selfdir + "/valuer.cfg";
     ConfigParser parser;
@@ -849,6 +857,8 @@ int main(int argc, char *argv[])
             ++test_num;
         } else if (g->get_test_score() >= 0) {
             // by-test score, just go on
+	    handle_zero_score(g, test_num);
+
             if (test_num == g->get_last()) {
                 if (g->is_zero_set()) {
                     char buf[1024];
