@@ -100,14 +100,14 @@ static int locale_id = 0;
 static int parse_status(const string &str)
 {
     if (str.length() != 2) return -1;
+    
     string status_string = str;
-
     status_string[0] = toupper(status_string[0]);
     status_string[1] = toupper(status_string[1]);
 
     if (string_to_status.find(status_string) == string_to_status.end()) return -1;
 
-    return string_to_status[str];
+    return string_to_status[status_string];
 }
 
 class ConfigParser;
@@ -128,8 +128,6 @@ class Group
     int score = 0;
     int test_score = -1;
     int pass_if_count = -1;
-    int user_status = -1;
-
     int user_status = -1;
 
     int passed_count = 0;
@@ -862,6 +860,8 @@ main(int argc, char *argv[])
                 if (locale_id == 1) {
                     snprintf(buf, sizeof(buf), "Тестирование на тестах %d-%d не будет выполняться после окончания тура, "
                              "так как не пройдена одна из требуемых групп %s.\n",
+                             g->get_first(), g->get_last(), gg->get_group_id().c_str());
+                } else {
                     snprintf(buf, sizeof(buf), "Testing on tests %d-%d will not be performed after the tour finish, "
                              "as one of the required groups '%s' has not passed.\n",
                              g->get_first(), g->get_last(), gg->get_group_id().c_str());
