@@ -347,10 +347,6 @@ public:
             }
             return;
         }
-        /*
-        if (in_c == '\"') {
-        }
-        */
         if (in_c == ';' || in_c == '{' || in_c == '}' || in_c == '-' || in_c == ',') {
             t_line = c_line;
             t_pos = c_pos;
