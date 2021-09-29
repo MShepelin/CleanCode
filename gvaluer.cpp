@@ -121,7 +121,7 @@ class Group
     int last = 0;
     std::vector<std::string> requires;
     std::vector<std::string> sets_marked_if_passed;
-    bool offline = false;
+    bool is_offline = false;
     bool sets_marked = false;
     bool skip = false;
     bool skip_if_not_rejudge = false;
@@ -161,8 +161,8 @@ public:
     void add_sets_marked_if_passed(const std::string &s) { sets_marked_if_passed.push_back(s); }
     const std::vector<std::string> &get_sets_marked_if_passed() const { return sets_marked_if_passed; }
 
-    void set_offline(bool offline) { this->offline = offline; }
-    bool get_offline() const { return offline; }
+    void set_offline(bool offline) { this->is_offline = offline; }
+    bool get_offline() const { return is_offline; }
 
     void set_sets_marked(bool sets_marked) { this->sets_marked = sets_marked; }
     bool get_sets_marked() const { return sets_marked; }
