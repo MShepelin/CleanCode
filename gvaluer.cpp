@@ -880,6 +880,49 @@ int analyse_test_group(Group *test_group, int& test_num, int t_status)
     return GROUP_READY;
 }
 
+void parse_with_requirements(Group *g, const Group *gg, int &test_num, ConfigParser &parser)
+{
+    while ((g = parser.find_group(test_num)) && !g->meet_requirements(parser, gg)) {
+        if (!g->get_offline()) {
+            char buf[1024];
+            if (locale_id == 1) {
+                    snprintf(buf, sizeof(buf), "Тестирование на тестах %d-%d не выполнялось, "
+                             "так как не пройдена одна из требуемых групп %s.\n",
+                             g->get_first(), 
+			     g->get_last(), 
+			     gg->get_group_id().c_str());
+            } else {
+                    snprintf(buf, sizeof(buf), "Testing on tests %d-%d has not been performed, "
+                             "as one of the required groups '%s' has not passed.\n",
+                             g->get_first(), 
+			     g->get_last(), 
+			     gg->get_group_id().c_str());
+            }
+            g->set_comment(string(buf));
+
+        } else if (g->get_offline() && !gg->get_offline()) {
+            char buf[1024];
+            if (locale_id == 1) {
+                    snprintf(buf, sizeof(buf), "Тестирование на тестах %d-%d не будет выполняться после окончания тура, "
+                             "так как не пройдена одна из требуемых групп %s.\n",
+                             g->get_first(), 
+			     g->get_last(), 
+			     gg->get_group_id().c_str());
+            } else {
+                    snprintf(buf, sizeof(buf), "Testing on tests %d-%d will not be performed after the tour finish, "
+                             "as one of the required groups '%s' has not passed.\n",
+                             g->get_first(), 
+			     g->get_last(), 
+			     gg->get_group_id().c_str());
+            }
+            g->set_comment(string(buf));
+        
+	}
+
+        test_num = g->get_last() + 1;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 3 || argc > 4) die("invalid number of arguments");
@@ -908,8 +951,10 @@ int main(int argc, char *argv[])
 	if (analyse_test_group(g, test_num, t_status) == CONTINUE_READING) continue;
 
         const Group *gg = NULL;
+
+        // parse_with_requirements
         while ((g = parser.find_group(test_num)) && !g->meet_requirements(parser, gg)) {
-            if (!g->get_offline()) {
+		if (!g->get_offline()) {
                 char buf[1024];
                 if (locale_id == 1) {
                     snprintf(buf, sizeof(buf), "Тестирование на тестах %d-%d не выполнялось, "
@@ -934,6 +979,7 @@ int main(int argc, char *argv[])
                 }
                 g->set_comment(string(buf));
             }
+
             test_num = g->get_last() + 1;
         }
         while ((g = parser.find_group(test_num))
