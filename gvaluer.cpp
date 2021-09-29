@@ -27,8 +27,6 @@
 #define CONTINUE_READING 1
 #define GROUP_READY 0
 
-using namespace std;
-
 enum
 {
   RUN_OK               = 0,
@@ -54,7 +52,7 @@ enum
   RUN_SUMMONED         = 23,
 };
 
-static unordered_map<string, int> string_to_status = { { "AC", RUN_ACCEPTED } 
+static std::unordered_map<std::string, int> string_to_status = { { "AC", RUN_ACCEPTED } 
                                                    , { "CE", RUN_COMPILE_ERR }
 						   , { "CF", RUN_CHECK_FAILED }
 						   , { "DQ", RUN_DISQUALIFIED }
@@ -100,11 +98,11 @@ static bool interactive_flag;
 static bool rejudge_flag;
 static int locale_id = 0;
 
-static int parse_status(const string &str)
+static int parse_status(const std::string &str)
 {
     if (str.length() != 2) return -1;
     
-    string status_string = str;
+    std::string status_string = str;
     status_string[0] = toupper(status_string[0]);
     status_string[1] = toupper(status_string[1]);
 
@@ -116,11 +114,11 @@ static int parse_status(const string &str)
 class ConfigParser;
 class Group
 {
-    string group_id;
+    std::string group_id;
     int first = 0;
     int last = 0;
-    vector<string> requires;
-    vector<string> sets_marked_if_passed;
+    std::vector<std::string> requires;
+    std::vector<std::string> sets_marked_if_passed;
     bool offline = false;
     bool sets_marked = false;
     bool skip = false;
@@ -135,16 +133,16 @@ class Group
 
     int passed_count = 0;
     int total_score = 0;
-    string comment;
+    std::string comment;
 
-    vector<set<int> > zero_sets;
-    set<int> passed_set;
+    std::vector<std::set<int> > zero_sets;
+    std::set<int> passed_set;
 
 public:
     Group() {}
 
-    void set_group_id(const string &group_id_) { group_id = group_id_; }
-    const string &get_group_id() const { return group_id; }
+    void set_group_id(const std::string &group_id_) { group_id = group_id_; }
+    const std::string &get_group_id() const { return group_id; }
 
     void set_range(int first, int last)
     {
@@ -154,11 +152,11 @@ public:
     int get_first() const { return first; }
     int get_last() const { return last; }
 
-    void add_requires(const string &s) { requires.push_back(s); }
-    const vector<string> &get_requires() const { return requires; }
+    void add_requires(const std::string &s) { requires.push_back(s); }
+    const std::vector<std::string> &get_requires() const { return requires; }
 
-    void add_sets_marked_if_passed(const string &s) { sets_marked_if_passed.push_back(s); }
-    const vector<string> &get_sets_marked_if_passed() const { return sets_marked_if_passed; }
+    void add_sets_marked_if_passed(const std::string &s) { sets_marked_if_passed.push_back(s); }
+    const std::vector<std::string> &get_sets_marked_if_passed() const { return sets_marked_if_passed; }
 
     void set_offline(bool offline) { this->offline = offline; }
     bool get_offline() const { return offline; }
@@ -209,8 +207,8 @@ public:
         return false;
     }
 
-    void set_comment(const string &comment_) { comment = comment_; }
-    const string &get_comment() const { return comment; }
+    void set_comment(const std::string &comment_) { comment = comment_; }
+    const std::string &get_comment() const { return comment; }
     bool has_comment() const { return comment.length() > 0; }
 
     void set_test_score(int ts) { test_score = ts; }
@@ -219,7 +217,7 @@ public:
     void set_user_status(int user_status) { this->user_status = user_status; }
     int get_user_status() const { return user_status; }
 
-    void add_zero_set(set<int> &&zs)
+    void add_zero_set(std::set<int> &&zs)
     {
         zero_sets.emplace_back(zs);
     }
@@ -284,7 +282,7 @@ public:
 
 private:
     FILE *in_f = NULL;
-    string path;
+    std::string path;
     int line;
     int pos;
 
@@ -292,13 +290,13 @@ private:
     int c_line;
     int c_pos;
 
-    string token;
+    std::string token;
     int t_type;
     int t_line;
     int t_pos;
 
     Global global;
-    vector<Group> groups;
+    std::vector<Group> groups;
 
 private:
     void find_next_char()
@@ -388,8 +386,8 @@ public:
         scan_error("invalid character");
     }
 
-    void scan_error(const string &msg) const;
-    void parse_error(const string &msg) const;
+    void scan_error(const std::string &msg) const;
+    void parse_error(const std::string &msg) const;
 
     int read_int_opt(int default_value)
     {
@@ -415,7 +413,7 @@ public:
         next_token();
         if (t_type != T_IDENT) parse_error("IDENT expected");
         if (find_group(token) != NULL)
-            parse_error(string("group ") + token + " already defined");
+            parse_error(std::string("group ") + token + " already defined");
         parsed_group.set_group_id(token);
         next_token();
         if (t_type != '{') parse_error("'{' expected");
@@ -474,7 +472,7 @@ public:
                 if (t_type != ';') parse_error("';' expected");
                 next_token();
             } else if (token == "0_if") {
-                set<int> zs;
+                std::set<int> zs;
                 try {
                     next_token();
                     int tn = stoi(token);
@@ -612,14 +610,14 @@ public:
         sort(groups.begin(), groups.end(), [](const Group &g1, const Group &g2) -> bool { return g1.get_first() < g2.get_first(); });
         for (int i = 1; i < int(groups.size()); ++i) {
             if (groups[i].get_first() <= groups[i - 1].get_last()) {
-                parse_error(string("groups ") + groups[i - 1].get_group_id() + " and " + groups[i].get_group_id() + " overlap");
+                parse_error(std::string("groups ") + groups[i - 1].get_group_id() + " and " + groups[i].get_group_id() + " overlap");
             }
             if (groups[i].get_first() != groups[i - 1].get_last() + 1) {
-                parse_error(string("hole between groups ") + groups[i - 1].get_group_id() + " and " + groups[i].get_group_id());
+                parse_error(std::string("hole between groups ") + groups[i - 1].get_group_id() + " and " + groups[i].get_group_id());
             }
         }
         for (int i = 0; i < int(groups.size()); ++i) {
-            const vector<string> &r = groups[i].get_requires();
+            const std::vector<std::string> &r = groups[i].get_requires();
             for (int j = 0; j < int(r.size()); ++j) {
                 int k;
                 for (k = 0; k < i; ++k) {
@@ -627,12 +625,12 @@ public:
                         break;
                 }
                 if (k >= i) {
-                    parse_error(string("no group ") + r[j] + " before group " + groups[i].get_group_id());
+                    parse_error(std::string("no group ") + r[j] + " before group " + groups[i].get_group_id());
                 }
             }
         }
         for (int i = 0; i < int(groups.size()); ++i) {
-            const vector<string> &r = groups[i].get_sets_marked_if_passed();
+            const std::vector<std::string> &r = groups[i].get_sets_marked_if_passed();
             for (int j = 0; j < int(r.size()); ++j) {
                 int k;
                 for (k = 0; k <= i; ++k) {
@@ -640,7 +638,7 @@ public:
                         break;
                 }
                 if (k > i) {
-                    parse_error(string("no group ") + r[j] + " before group " + groups[i].get_group_id());
+                    parse_error(std::string("no group ") + r[j] + " before group " + groups[i].get_group_id());
                 }
             }
         }
@@ -687,7 +685,7 @@ public:
         next_token();
     }
 
-    void parse(const string &configpath)
+    void parse(const std::string &configpath)
     {
         path = configpath;
         line = 1;
@@ -703,7 +701,7 @@ public:
         }
     }
 
-    const Group *find_group(const string &id) const
+    const Group *find_group(const std::string &id) const
     {
         for (auto i = groups.begin(); i != groups.end(); ++i) {
             if (i->get_group_id() == id)
@@ -721,18 +719,18 @@ public:
         return NULL;
     }
 
-    const vector<Group> &get_groups() const { return groups; }
+    const std::vector<Group> &get_groups() const { return groups; }
 };
 
 void
-ConfigParser::parse_error(const string &msg) const
+ConfigParser::parse_error(const std::string &msg) const
 {
     fprintf(stderr, "%s: %d: %d: parse error: %s\n", path.c_str(), t_line, t_pos, msg.c_str());
     exit(RUN_CHECK_FAILED);
 }
 
 void
-ConfigParser::scan_error(const string &msg) const
+ConfigParser::scan_error(const std::string &msg) const
 {
     fprintf(stderr, "%s: %d: %d: scan error: %s\n", path.c_str(), c_line, c_pos, msg.c_str());
     exit(RUN_CHECK_FAILED);
@@ -760,11 +758,11 @@ Group::meet_requirements(const ConfigParser &cfg, const Group *&grp) const
     return false;
 }
 
-void parse_args(int argc, char** argv, string& selfdir, string& self)
+void parse_args(int argc, char** argv, std::string& selfdir, std::string& self)
 {
     if (argc == 3) {
         size_t pos = self.find_last_of('/');
-        if (pos == string::npos) {
+        if (pos == std::string::npos) {
             char buf[PATH_MAX];
             if (!getcwd(buf, sizeof(buf))) die("getcwd() failed");
             selfdir = buf;
@@ -786,7 +784,7 @@ void parse_args(int argc, char** argv, string& selfdir, string& self)
 
 void environment_setup()
 {
-    if (!getenv("EJUDGE")) die("EJUDGE environment variable must be set");
+    if (!getenv("EJUDGE")) die("EJUDGE environment variable must be std::set");
     if (getenv("EJUDGE_USER_SCORE")) user_score_flag = true;
     if (getenv("EJUDGE_MARKED")) marked_flag = true;
     if (getenv("EJUDGE_INTERACTIVE")) interactive_flag = true;
@@ -822,7 +820,7 @@ void handle_bytest_score(Group *test_group, int test_num)
 				 test_group->get_last());
              }
              test_group->set_total_score(0);
-             test_group->set_comment(string(buf));
+             test_group->set_comment(std::string(buf));
          }
     }
 }
@@ -846,7 +844,7 @@ void handle_test_stop(Group *test_group, int test_num)
 			     test_num, 
 			     test_group->get_group_id().c_str());
             }
-            test_group->set_comment(string(buf));
+            test_group->set_comment(std::string(buf));
     }
 }
 
@@ -898,7 +896,7 @@ void parse_with_requirements(Group *g, const Group *gg, int &test_num, ConfigPar
 			     g->get_last(), 
 			     gg->get_group_id().c_str());
             }
-            g->set_comment(string(buf));
+            g->set_comment(std::string(buf));
 
         } else if (g->get_offline() && !gg->get_offline()) {
             char buf[1024];
@@ -915,7 +913,7 @@ void parse_with_requirements(Group *g, const Group *gg, int &test_num, ConfigPar
 			     g->get_last(), 
 			     gg->get_group_id().c_str());
             }
-            g->set_comment(string(buf));
+            g->set_comment(std::string(buf));
         
 	}
 
@@ -968,11 +966,11 @@ void print_group_score(const Group &g, FILE *fjcmt, FILE *fcmt)
     }
 }
 
-void analyse_sets_marker_vector(const vector<string> &smv, int &valuer_marked, ConfigParser &parser)
+void analyse_sets_marker_vector(const std::vector<std::string> &smv, int &valuer_marked, ConfigParser &parser)
 {
     if (smv.size() > 0) {
         bool failed = false;
-        for (const string &gn : smv) {
+        for (const std::string &gn : smv) {
             const Group *pg2 = parser.find_group(gn);
             if (!pg2 || !pg2->is_passed()) {
                     failed = true;
@@ -1014,7 +1012,7 @@ void count_groups_score(ConfigParser &parser, int &valuer_marked, FILE *fcmt, FI
             valuer_marked = 1;
         }
 
-        const vector<string> &smv = g.get_sets_marked_if_passed();
+        const std::vector<std::string> &smv = g.get_sets_marked_if_passed();
         analyse_sets_marker_vector(smv, valuer_marked, parser);
 
         int group_score = g.calc_score();
@@ -1057,13 +1055,13 @@ int main(int argc, char *argv[])
     
     int valuer_marked = 0;
 
-    string self(argv[0]);
-    string selfdir;
+    std::string self(argv[0]);
+    std::string selfdir;
     parse_args(argc, argv, selfdir, self);
     
     environment_setup();
 
-    string configpath = selfdir + "/valuer.cfg";
+    std::string configpath = selfdir + "/valuer.cfg";
     ConfigParser parser;
     parser.parse(configpath);
 
