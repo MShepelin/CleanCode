@@ -923,6 +923,14 @@ void parse_with_requirements(Group *g, const Group *gg, int &test_num, ConfigPar
     }
 }
 
+void skip_rejudge_groups(Group *g, int &test_num, ConfigParser &parser)
+{
+    while ((g = parser.find_group(test_num))
+               && (g->get_skip() || (g->get_skip_if_not_rejudge() && !rejudge_flag))) {
+            test_num = g->get_last() + 1;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 3 || argc > 4) die("invalid number of arguments");
@@ -947,45 +955,18 @@ int main(int argc, char *argv[])
     int test_num = 1, t_status = 0, t_score = 0, t_time = 0;
     while (scanf("%d%d%d", &t_status, &t_score, &t_time) == 3) {
        	Group *g = parser.find_group(test_num);
-        
 	if (analyse_test_group(g, test_num, t_status) == CONTINUE_READING) continue;
+        
+	const Group *gg = NULL;
+        parse_with_requirements(g, gg, test_num, parser);
 
-        const Group *gg = NULL;
-
-        // parse_with_requirements
-        while ((g = parser.find_group(test_num)) && !g->meet_requirements(parser, gg)) {
-		if (!g->get_offline()) {
-                char buf[1024];
-                if (locale_id == 1) {
-                    snprintf(buf, sizeof(buf), "Тестирование на тестах %d-%d не выполнялось, "
-                             "так как не пройдена одна из требуемых групп %s.\n",
-                             g->get_first(), g->get_last(), gg->get_group_id().c_str());
-                } else {
-                    snprintf(buf, sizeof(buf), "Testing on tests %d-%d has not been performed, "
-                             "as one of the required groups '%s' has not passed.\n",
-                             g->get_first(), g->get_last(), gg->get_group_id().c_str());
-                }
-                g->set_comment(string(buf));
-            } else if (g->get_offline() && !gg->get_offline()) {
-                char buf[1024];
-                if (locale_id == 1) {
-                    snprintf(buf, sizeof(buf), "Тестирование на тестах %d-%d не будет выполняться после окончания тура, "
-                             "так как не пройдена одна из требуемых групп %s.\n",
-                             g->get_first(), g->get_last(), gg->get_group_id().c_str());
-                } else {
-                    snprintf(buf, sizeof(buf), "Testing on tests %d-%d will not be performed after the tour finish, "
-                             "as one of the required groups '%s' has not passed.\n",
-                             g->get_first(), g->get_last(), gg->get_group_id().c_str());
-                }
-                g->set_comment(string(buf));
-            }
-
-            test_num = g->get_last() + 1;
-        }
-        while ((g = parser.find_group(test_num))
+        // 
+	
+	while ((g = parser.find_group(test_num))
                && (g->get_skip() || (g->get_skip_if_not_rejudge() && !rejudge_flag))) {
             test_num = g->get_last() + 1;
         }
+
         printf("%d\n", -test_num);
         fflush(stdout);
     }
