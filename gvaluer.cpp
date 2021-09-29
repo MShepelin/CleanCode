@@ -931,6 +931,43 @@ void skip_rejudge_groups(Group *g, int &test_num, ConfigParser &parser)
     }
 }
 
+void print_group_score(const Group &g, FILE *fjcmt, FILE *fcmt)
+{
+    int group_score = g.calc_score();
+    
+    if (g.get_stat_to_judges()) {
+        if (locale_id == 1) {
+            fprintf(fjcmt, "Группа тестов %s: тесты %d-%d: балл %d\n",
+                    g.get_group_id().c_str(),
+                    g.get_first(),
+                    g.get_last(),
+                    group_score);
+        } else {
+            fprintf(fjcmt, "Test group '%s': tests %d-%d: score %d\n",
+                    g.get_group_id().c_str(),
+                    g.get_first(),
+                    g.get_last(),
+                    group_score);
+        }
+    }
+
+    if (g.get_stat_to_users() && !g.get_offline()) {
+        if (locale_id == 1) {
+            fprintf(fcmt, "Группа тестов %s: тесты %d-%d: балл %d\n",
+                    g.get_group_id().c_str(),
+                    g.get_first(),
+                    g.get_last(),
+                    group_score);
+        } else {
+            fprintf(fcmt, "Test group '%s': tests %d-%d: score %d\n",
+                    g.get_group_id().c_str(),
+                    g.get_first(),
+                    g.get_last(),
+                    group_score);
+        }
+    }
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 3 || argc > 4) die("invalid number of arguments");
@@ -990,27 +1027,10 @@ int main(int argc, char *argv[])
             }
             if (!failed) valuer_marked = 1;
         }
+
         int group_score = g.calc_score();
-        if (g.get_stat_to_judges()) {
-            if (locale_id == 1) {
-                fprintf(fjcmt, "Группа тестов %s: тесты %d-%d: балл %d\n",
-                        g.get_group_id().c_str(), g.get_first(), g.get_last(), group_score);
-            } else {
-                fprintf(fjcmt, "Test group '%s': tests %d-%d: score %d\n",
-                        g.get_group_id().c_str(), g.get_first(), g.get_last(), group_score);
-            }
-
-        }
-        if (g.get_stat_to_users() && !g.get_offline()) {
-            if (locale_id == 1) {
-                fprintf(fcmt, "Группа тестов %s: тесты %d-%d: балл %d\n",
-                        g.get_group_id().c_str(), g.get_first(), g.get_last(), group_score);
-            } else {
-                fprintf(fcmt, "Test group '%s': tests %d-%d: score %d\n",
-                        g.get_group_id().c_str(), g.get_first(), g.get_last(), group_score);
-            }
-
-        }
+	print_group_score(g, fjcmt, fcmt);
+	
         if (g.get_offline()) {
             score += group_score;
         } else {
