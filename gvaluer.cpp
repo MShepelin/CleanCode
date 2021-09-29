@@ -24,6 +24,9 @@
 #include <set>
 #include <unordered_map>
 
+#define CONTINUE_READING 1
+#define GROUP_READY 0
+
 using namespace std;
 
 enum
@@ -846,9 +849,6 @@ void handle_test_stop(Group *test_group, int test_num)
             test_group->set_comment(string(buf));
     }
 }
-
-#define CONTINUE_READING 1
-#define GROUP_READY 0
 
 int analyse_test_group(Group *test_group, int& test_num, int t_status)
 {
