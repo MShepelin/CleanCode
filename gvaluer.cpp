@@ -29,51 +29,52 @@
 
 enum
 {
-  RUN_OK               = 0,
-  RUN_COMPILE_ERR      = 1,
-  RUN_RUN_TIME_ERR     = 2,
-  RUN_TIME_LIMIT_ERR   = 3,
-  RUN_PRESENTATION_ERR = 4,
-  RUN_WRONG_ANSWER_ERR = 5,
-  RUN_CHECK_FAILED     = 6,
-  RUN_PARTIAL          = 7,
-  RUN_ACCEPTED         = 8,
-  RUN_IGNORED          = 9,
-  RUN_DISQUALIFIED     = 10,
-  RUN_PENDING          = 11,
-  RUN_MEM_LIMIT_ERR    = 12,
-  RUN_SECURITY_ERR     = 13,
-  RUN_STYLE_ERR        = 14,
-  RUN_WALL_TIME_LIMIT_ERR = 15,
-  RUN_PENDING_REVIEW   = 16,
-  RUN_REJECTED         = 17,
-  RUN_SKIPPED          = 18,
-  RUN_SYNC_ERR         = 19,
-  RUN_SUMMONED         = 23,
+    RUN_OK               = 0,
+    RUN_COMPILE_ERR      = 1,
+    RUN_RUN_TIME_ERR     = 2,
+    RUN_TIME_LIMIT_ERR   = 3,
+    RUN_PRESENTATION_ERR = 4,
+    RUN_WRONG_ANSWER_ERR = 5,
+    RUN_CHECK_FAILED     = 6,
+    RUN_PARTIAL          = 7,
+    RUN_ACCEPTED         = 8,
+    RUN_IGNORED          = 9,
+    RUN_DISQUALIFIED     = 10,
+    RUN_PENDING          = 11,
+    RUN_MEM_LIMIT_ERR    = 12,
+    RUN_SECURITY_ERR     = 13,
+    RUN_STYLE_ERR        = 14,
+    RUN_WALL_TIME_LIMIT_ERR = 15,
+    RUN_PENDING_REVIEW   = 16,
+    RUN_REJECTED         = 17,
+    RUN_SKIPPED          = 18,
+    RUN_SYNC_ERR         = 19,
+    RUN_SUMMONED         = 23,
 };
 
-static std::unordered_map<std::string, int> string_to_status = { { "AC", RUN_ACCEPTED } 
-                                                   , { "CE", RUN_COMPILE_ERR }
-						   , { "CF", RUN_CHECK_FAILED }
-						   , { "DQ", RUN_DISQUALIFIED }
-						   , { "IG", RUN_IGNORED }
-						   , { "ML", RUN_MEM_LIMIT_ERR }
-						   , { "OK", RUN_OK }
-						   , { "PD", RUN_PENDING }
-						   , { "PE", RUN_PRESENTATION_ERR }
-						   , { "PR", RUN_PENDING_REVIEW }
-						   , { "PT", RUN_PARTIAL }
-						   , { "SE", RUN_SECURITY_ERR }
-						   , { "SK", RUN_SKIPPED }
-						   , { "SM", RUN_SUMMONED }
-						   , { "SV", RUN_STYLE_ERR }
-						   , { "SY", RUN_SYNC_ERR }
-						   , { "RJ", RUN_REJECTED }
-						   , { "RT", RUN_RUN_TIME_ERR }
-						   , { "TL", RUN_TIME_LIMIT_ERR }
-						   , { "WA", RUN_WRONG_ANSWER_ERR }
-						   , { "WT", RUN_WALL_TIME_LIMIT_ERR }
-                                                   };
+static std::unordered_map<std::string, int> string_to_status = { 
+    , { "AC", RUN_ACCEPTED } 
+    , { "CE", RUN_COMPILE_ERR }
+		, { "CF", RUN_CHECK_FAILED }
+		, { "DQ", RUN_DISQUALIFIED }
+		, { "IG", RUN_IGNORED }
+		, { "ML", RUN_MEM_LIMIT_ERR }
+		, { "OK", RUN_OK }
+		, { "PD", RUN_PENDING }
+		, { "PE", RUN_PRESENTATION_ERR }
+		, { "PR", RUN_PENDING_REVIEW }
+		, { "PT", RUN_PARTIAL }
+		, { "SE", RUN_SECURITY_ERR }
+		, { "SK", RUN_SKIPPED }
+		, { "SM", RUN_SUMMONED }
+		, { "SV", RUN_STYLE_ERR }
+		, { "SY", RUN_SYNC_ERR }
+		, { "RJ", RUN_REJECTED }
+		, { "RT", RUN_RUN_TIME_ERR }
+		, { "TL", RUN_TIME_LIMIT_ERR }
+		, { "WA", RUN_WRONG_ANSWER_ERR }
+		, { "WT", RUN_WALL_TIME_LIMIT_ERR }
+    };
 
 static void
 die(const char *, ...)
@@ -149,6 +150,7 @@ public:
         this->first = first; 
         this->last = last;
     }
+
     int get_first() const { return first; }
     int get_last() const { return last; }
 
@@ -260,6 +262,7 @@ public:
         }
         stat_to_judges = value;
     }
+
     int get_stat_to_judges() const { return stat_to_judges; }
 
     void set_stat_to_users(int value)
@@ -271,6 +274,7 @@ public:
         }
         stat_to_users = value;
     }
+
     int get_stat_to_users() const { return stat_to_users; }
 };
 
@@ -301,7 +305,7 @@ private:
 private:
     void find_next_char()
     {
-	while (1) {
+        while (1) {
             while (isspace(in_c)) next_char();
             if (in_c != '#') break;
             while (in_c != EOF && in_c != '\n') next_char();
@@ -311,18 +315,18 @@ private:
 
     bool handleEOF()
     {
-	if (in_c == EOF) {
+	    if (in_c == EOF) {
             t_type = T_EOF;
             token = "";
             return true;
-        }
+      }
 
-	return false;
+	    return false;
     }
 	
     bool handleNamingToken()
     {
-	if (isalnum(in_c) || in_c == '_') {
+	      if (isalnum(in_c) || in_c == '_') {
             token = "";
             t_type = T_IDENT;
             t_line = c_line;
@@ -334,12 +338,12 @@ private:
             return true;
         }
 
-	return false;
+	      return false;
     }
 
     bool handleSeparatingToken()
     {
-	if (in_c == ';' || in_c == '{' || in_c == '}' || in_c == '-' || in_c == ',') {
+	      if (in_c == ';' || in_c == '{' || in_c == '}' || in_c == '-' || in_c == ',') {
             t_line = c_line;
             t_pos = c_pos;
             token = ";";
@@ -348,7 +352,7 @@ private:
             return true;
         }
 	
-	return false;
+	      return false;
     }
 
 public:
@@ -379,10 +383,10 @@ public:
 
     void next_token()
     {
-	find_next_char();
-	if (handleEOF()) return;
-	if (handleNamingToken()) return;
-	if (handleSeparatingToken()) return;
+	      find_next_char();
+	      if (handleEOF()) return;
+	      if (handleNamingToken()) return;
+	      if (handleSeparatingToken()) return;
         scan_error("invalid character");
     }
 
@@ -722,22 +726,19 @@ public:
     const std::vector<Group> &get_groups() const { return groups; }
 };
 
-void
-ConfigParser::parse_error(const std::string &msg) const
+void ConfigParser::parse_error(const std::string &msg) const
 {
     fprintf(stderr, "%s: %d: %d: parse error: %s\n", path.c_str(), t_line, t_pos, msg.c_str());
     exit(RUN_CHECK_FAILED);
 }
 
-void
-ConfigParser::scan_error(const std::string &msg) const
+void ConfigParser::scan_error(const std::string &msg) const
 {
     fprintf(stderr, "%s: %d: %d: scan error: %s\n", path.c_str(), c_line, c_pos, msg.c_str());
     exit(RUN_CHECK_FAILED);
 }
 
-bool
-Group::meet_requirements(const ConfigParser &cfg, const Group *&grp) const
+bool Group::meet_requirements(const ConfigParser &cfg, const Group *&grp) const
 {
     if (requires.size() <= 0) {
         grp = NULL;
@@ -884,38 +885,43 @@ void parse_with_requirements(Group *g, const Group *gg, int &test_num, ConfigPar
         if (!g->get_offline()) {
             char buf[1024];
             if (locale_id == 1) {
-                    snprintf(buf, sizeof(buf), "Тестирование на тестах %d-%d не выполнялось, "
-                             "так как не пройдена одна из требуемых групп %s.\n",
-                             g->get_first(), 
-			     g->get_last(), 
-			     gg->get_group_id().c_str());
+                    snprintf(buf, sizeof(buf), 
+                      "Тестирование на тестах %d-%d не выполнялось, "
+                      "так как не пройдена одна из требуемых групп %s.\n",
+                      g->get_first(),
+			                g->get_last(), 
+			                gg->get_group_id().c_str());
             } else {
-                    snprintf(buf, sizeof(buf), "Testing on tests %d-%d has not been performed, "
-                             "as one of the required groups '%s' has not passed.\n",
-                             g->get_first(), 
-			     g->get_last(), 
-			     gg->get_group_id().c_str());
+                snprintf(buf, sizeof(buf), 
+                  "Testing on tests %d-%d has not been performed, "
+                  "as one of the required groups '%s' has not passed.\n",
+                   g->get_first(), 
+			             g->get_last(), 
+			             gg->get_group_id().c_str());
             }
+
             g->set_comment(std::string(buf));
 
         } else if (g->get_offline() && !gg->get_offline()) {
             char buf[1024];
             if (locale_id == 1) {
-                    snprintf(buf, sizeof(buf), "Тестирование на тестах %d-%d не будет выполняться после окончания тура, "
-                             "так как не пройдена одна из требуемых групп %s.\n",
-                             g->get_first(), 
-			     g->get_last(), 
-			     gg->get_group_id().c_str());
+                snprintf(buf, sizeof(buf), 
+                   "Тестирование на тестах %d-%d не будет выполняться после окончания тура, "
+                   "так как не пройдена одна из требуемых групп %s.\n",
+                   g->get_first(), 
+			             g->get_last(), 
+			             gg->get_group_id().c_str());
             } else {
-                    snprintf(buf, sizeof(buf), "Testing on tests %d-%d will not be performed after the tour finish, "
-                             "as one of the required groups '%s' has not passed.\n",
-                             g->get_first(), 
-			     g->get_last(), 
-			     gg->get_group_id().c_str());
+                snprintf(buf, sizeof(buf), 
+                  "Testing on tests %d-%d will not be performed after the tour finish, "
+                  "as one of the required groups '%s' has not passed.\n",
+                  g->get_first(), 
+			            g->get_last(), 
+			            gg->get_group_id().c_str());
             }
+
             g->set_comment(std::string(buf));
-        
-	}
+	      }
 
         test_num = g->get_last() + 1;
     }
@@ -936,32 +942,32 @@ void print_group_score(const Group &g, FILE *fjcmt, FILE *fcmt)
     if (g.get_stat_to_judges()) {
         if (locale_id == 1) {
             fprintf(fjcmt, "Группа тестов %s: тесты %d-%d: балл %d\n",
-                    g.get_group_id().c_str(),
-                    g.get_first(),
-                    g.get_last(),
-                    group_score);
+                g.get_group_id().c_str(),
+                g.get_first(),
+                g.get_last(),
+                group_score);
         } else {
             fprintf(fjcmt, "Test group '%s': tests %d-%d: score %d\n",
-                    g.get_group_id().c_str(),
-                    g.get_first(),
-                    g.get_last(),
-                    group_score);
+                g.get_group_id().c_str(),
+                g.get_first(),
+                g.get_last(),
+                group_score);
         }
     }
 
     if (g.get_stat_to_users() && !g.get_offline()) {
         if (locale_id == 1) {
             fprintf(fcmt, "Группа тестов %s: тесты %d-%d: балл %d\n",
-                    g.get_group_id().c_str(),
-                    g.get_first(),
-                    g.get_last(),
-                    group_score);
+                g.get_group_id().c_str(),
+                g.get_first(),
+                g.get_last(),
+                group_score);
         } else {
             fprintf(fcmt, "Test group '%s': tests %d-%d: score %d\n",
-                    g.get_group_id().c_str(),
-                    g.get_first(),
-                    g.get_last(),
-                    group_score);
+                g.get_group_id().c_str(),
+                g.get_first(),
+                g.get_last(),
+                group_score);
         }
     }
 }
@@ -976,6 +982,7 @@ void analyse_sets_marker_vector(const std::vector<std::string> &smv, int &valuer
                     failed = true;
                 }
             }
+
         if (!failed) valuer_marked = 1;
     }
 }
