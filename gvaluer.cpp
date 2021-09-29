@@ -26,6 +26,7 @@
 
 #define CONTINUE_READING 1
 #define GROUP_READY 0
+#define BUF_SIZE 1024
 
 enum
 {
@@ -83,7 +84,7 @@ static void
 die(const char *format, ...)
 {
     va_list args;
-    char buf[1024];
+    char buf[BUF_SIZE];
 
     va_start(args, format);
     vsnprintf(buf, sizeof(buf), format, args);
@@ -806,7 +807,7 @@ void handle_bytest_score(Group *test_group, int test_num)
 {
     if (test_num == test_group->get_last()) {
         if (test_group->is_zero_set()) {
-            char buf[1024];
+            char buf[BUF_SIZE];
             if (locale_id == 1) {
                 snprintf(buf, sizeof(buf), "Группа тестов %s (%d-%d) оценена в 0 баллов, "
                                  "так как были пройдены только специальные тесты.\n",
@@ -829,7 +830,7 @@ void handle_bytest_score(Group *test_group, int test_num)
 void handle_test_stop(Group *test_group, int test_num)
 {
     if (test_num < test_group->get_last() && !test_group->get_offline()) {
-        char buf[1024];
+        char buf[BUF_SIZE];
         if (locale_id == 1) {
             snprintf(buf, sizeof(buf), "Тестирование на тестах %d-%d не выполнялось, "
                              "так как тест %d не пройден, и оценка за группу тестов %s - 0 баллов.\n",
@@ -883,7 +884,7 @@ void parse_with_requirements(Group *g, const Group *gg, int &test_num, ConfigPar
 {
     while ((g = parser.find_group(test_num)) && !g->meet_requirements(parser, gg)) {
         if (!g->get_offline()) {
-            char buf[1024];
+            char buf[BUF_SIZE];
             if (locale_id == 1) {
                     snprintf(buf, sizeof(buf), 
                       "Тестирование на тестах %d-%d не выполнялось, "
@@ -903,7 +904,7 @@ void parse_with_requirements(Group *g, const Group *gg, int &test_num, ConfigPar
             g->set_comment(std::string(buf));
 
         } else if (g->get_offline() && !gg->get_offline()) {
-            char buf[1024];
+            char buf[BUF_SIZE];
             if (locale_id == 1) {
                 snprintf(buf, sizeof(buf), 
                    "Тестирование на тестах %d-%d не будет выполняться после окончания тура, "
