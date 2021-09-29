@@ -982,6 +982,75 @@ void analyse_sets_marker_vector(const vector<string> &smv, int &valuer_marked, C
     }
 }
 
+void add_score(int &score, 
+		int &user_score, 
+		int &user_status,
+		int &user_tests_passed,
+		int group_score, 
+		const Group &g)
+{
+    if (g.get_offline()) {
+        score += group_score;
+    } else {
+        user_tests_passed += g.get_passed_count();
+        score += group_score;
+        user_score += group_score;
+        if (!g.is_passed()) {
+            user_status = RUN_PARTIAL;
+        } else if (g.get_user_status() >= 0) {
+            user_status = g.get_user_status();
+        }
+    }
+}
+
+void count_groups_score(ConfigParser &parser, int &valuer_marked, FILE *fcmt, FILE *fjcmt)
+{
+    int score = 0, user_status = RUN_OK, user_score = 0, user_tests_passed = 0;
+    for (const Group &g : parser.get_groups()) {
+        if (g.has_comment()) {
+            fprintf(fcmt, "%s", g.get_comment().c_str());
+        }
+        if (g.get_sets_marked() && g.is_passed()) {
+            valuer_marked = 1;
+        }
+
+        const vector<string> &smv = g.get_sets_marked_if_passed();
+        analyse_sets_marker_vector(smv, valuer_marked, parser);
+
+        int group_score = g.calc_score();
+        print_group_score(g, fjcmt, fcmt);
+
+        add_score(score, user_score, user_status, 
+                        user_tests_passed, group_score, g);
+    }
+
+    printf("%d", score);
+    if (marked_flag) {
+        printf(" %d", valuer_marked);
+    }
+    if (user_score_flag) {
+        printf(" %d %d %d", user_status, user_score, user_tests_passed);
+    }
+    printf("\n");
+    fflush(stdout);
+}
+
+void scan_tests(ConfigParser &parser)
+{
+    int test_num = 1, t_status = 0, t_score = 0, t_time = 0;
+    while (scanf("%d%d%d", &t_status, &t_score, &t_time) == 3) {
+        Group *g = parser.find_group(test_num);
+        if (analyse_test_group(g, test_num, t_status) == CONTINUE_READING) continue;
+
+        const Group *gg = NULL;
+        parse_with_requirements(g, gg, test_num, parser);
+        skip_rejudge_groups(g, test_num, parser);
+
+        printf("%d\n", -test_num);
+        fflush(stdout);
+    }
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 3 || argc > 4) die("invalid number of arguments");
@@ -1003,18 +1072,7 @@ int main(int argc, char *argv[])
     if (scanf("%d", &total_count) != 1) die("expected the count of tests");
     if (total_count != -1) die("count value must be -1");
 
-    int test_num = 1, t_status = 0, t_score = 0, t_time = 0;
-    while (scanf("%d%d%d", &t_status, &t_score, &t_time) == 3) {
-       	Group *g = parser.find_group(test_num);
-	if (analyse_test_group(g, test_num, t_status) == CONTINUE_READING) continue;
-        
-	const Group *gg = NULL;
-        parse_with_requirements(g, gg, test_num, parser);
-        skip_rejudge_groups(g, test_num, parser);
-	
-        printf("%d\n", -test_num);
-        fflush(stdout);
-    }
+    scan_tests(parser);
 
     FILE *fcmt = fopen(argv[1], "w");
     if (!fcmt) die("cannot open file '%s' for writing", argv[1]);
@@ -1022,45 +1080,7 @@ int main(int argc, char *argv[])
     FILE *fjcmt = fopen(argv[2], "w");
     if (!fjcmt) die("cannot open file '%s' for writing", argv[2]);
 
-    int score = 0, user_status = RUN_OK, user_score = 0, user_tests_passed = 0;
-    for (const Group &g : parser.get_groups()) {
-        if (g.has_comment()) {
-            fprintf(fcmt, "%s", g.get_comment().c_str());
-        }
-        if (g.get_sets_marked() && g.is_passed()) {
-            valuer_marked = 1;
-        }
-
-        const vector<string> &smv = g.get_sets_marked_if_passed();
-        
-	analyse_sets_marker_vector(smv, valuer_marked, parser);
-	
-        int group_score = g.calc_score();
-	print_group_score(g, fjcmt, fcmt);
-	
-        if (g.get_offline()) {
-            score += group_score;
-        } else {
-            user_tests_passed += g.get_passed_count();
-            score += group_score;
-            user_score += group_score;
-            if (!g.is_passed()) {
-                user_status = RUN_PARTIAL;
-            } else if (g.get_user_status() >= 0) {
-                user_status = g.get_user_status();
-            }
-        }
-    }
-
-    printf("%d", score);
-    if (marked_flag) {
-        printf(" %d", valuer_marked);
-    }
-    if (user_score_flag) {
-        printf(" %d %d %d", user_status, user_score, user_tests_passed);
-    }
-    printf("\n");
-    fflush(stdout);
+    count_groups_score(parser, valuer_marked, fcmt, fjcmt);
 }
 
 /*
