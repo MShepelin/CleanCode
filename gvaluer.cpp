@@ -959,14 +959,8 @@ int main(int argc, char *argv[])
         
 	const Group *gg = NULL;
         parse_with_requirements(g, gg, test_num, parser);
-
-        // 
+        skip_rejudge_groups(g, test_num, parser);
 	
-	while ((g = parser.find_group(test_num))
-               && (g->get_skip() || (g->get_skip_if_not_rejudge() && !rejudge_flag))) {
-            test_num = g->get_last() + 1;
-        }
-
         printf("%d\n", -test_num);
         fflush(stdout);
     }
