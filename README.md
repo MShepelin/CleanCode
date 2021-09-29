@@ -75,6 +75,8 @@ Some of the functions have repeated sections. It is better to create a general f
 
 <img src="/2021-09-29_20-25-34.png" alt="2021-09-29_20-25-34" style="zoom:50%;" />
 
+
+
 ###Results
 
 A huge work was dedicated to function separation and style reformatting. From the commits in this repository it can be seen how "main" function and "Group" member functions were made readable and eye-observable.
