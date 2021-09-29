@@ -404,16 +404,16 @@ public:
 
     void parse_group()
     {
-        Group g;
+        Group parsed_group;
         bool has_stat_to_judges = false;
         bool has_stat_to_users = false;
 
-	if (token != "group") parse_error("'group' expected");
+        if (token != "group") parse_error("'group' expected");
         next_token();
         if (t_type != T_IDENT) parse_error("IDENT expected");
         if (find_group(token) != NULL)
             parse_error(string("group ") + token + " already defined");
-        g.set_group_id(token);
+        parsed_group.set_group_id(token);
         next_token();
         if (t_type != '{') parse_error("'{' expected");
         next_token();
@@ -441,18 +441,18 @@ public:
                 } else {
                     last = first;
                 }
-                g.set_range(first, last);
+                parsed_group.set_range(first, last);
                 if (t_type != ';') parse_error("';' expected");
                 next_token();
             } else if (token == "requires") {
                 next_token();
                 if (t_type != T_IDENT) parse_error("IDENT expected");
-                g.add_requires(token);
+                parsed_group.add_requires(token);
                 next_token();
                 while (t_type == ',') {
                     next_token();
                     if (t_type != T_IDENT) parse_error("IDENT expected");
-                    g.add_requires(token);
+                    parsed_group.add_requires(token);
                     next_token();
                 }
                 if (t_type != ';') parse_error("';' expected");
@@ -460,12 +460,12 @@ public:
             } else if (token == "sets_marked_if_passed") {
                 next_token();
                 if (t_type != T_IDENT) parse_error("IDENT expected");
-                g.add_sets_marked_if_passed(token);
+                parsed_group.add_sets_marked_if_passed(token);
                 next_token();
                 while (t_type == ',') {
                     next_token();
                     if (t_type != T_IDENT) parse_error("IDENT expected");
-                    g.add_sets_marked_if_passed(token);
+                    parsed_group.add_sets_marked_if_passed(token);
                     next_token();
                 }
                 if (t_type != ';') parse_error("';' expected");
@@ -475,13 +475,13 @@ public:
                 try {
                     next_token();
                     int tn = stoi(token);
-                    if (tn < g.get_first() || tn > g.get_last()) parse_error("invalid test number");
+                    if (tn < parsed_group.get_first() || tn > parsed_group.get_last()) parse_error("invalid test number");
                     zs.insert(tn);
                     next_token();
                     while (t_type == ',') {
                         next_token();
                         tn = stoi(token);
-                        if (tn < g.get_first() || tn > g.get_last()) parse_error("invalid test number");
+                        if (tn < parsed_group.get_first() || tn > parsed_group.get_last()) parse_error("invalid test number");
                         zs.insert(tn);
                         next_token();
                     }
@@ -489,35 +489,35 @@ public:
                     parse_error("NUM expected");
                 }
                 if (t_type != ';') parse_error("';' expected");
-                g.add_zero_set(move(zs));
+                parsed_group.add_zero_set(move(zs));
                 next_token();
             } else if (token == "offline") {
                 next_token();
                 if (t_type != ';') parse_error("';' expected");
                 next_token();
-                g.set_offline(true);
+                parsed_group.set_offline(true);
             } else if (token == "sets_marked") {
                 next_token();
                 if (t_type != ';') parse_error("';' expected");
                 next_token();
-                g.set_sets_marked(true);
+                parsed_group.set_sets_marked(true);
             } else if (token == "skip") {
                 next_token();
                 if (t_type != ';') parse_error("';' expected");
                 next_token();
-                g.set_skip(true);
+                parsed_group.set_skip(true);
             } else if (token == "skip_if_not_rejudge") {
                 next_token();
                 if (t_type != ';') parse_error("';' expected");
                 next_token();
-                g.set_skip_if_not_rejudge(true);
+                parsed_group.set_skip_if_not_rejudge(true);
             } else if (token == "stat_to_judges") {
                 next_token();
                 int value = read_int_opt(1);
                 if (t_type != ';') parse_error("';' expected");
                 next_token();
                 if (value >= 0) {
-                    g.set_stat_to_judges(bool(value));
+                    parsed_group.set_stat_to_judges(bool(value));
                     has_stat_to_judges = true;
                 }
             } else if (token == "stat_to_users") {
@@ -526,14 +526,14 @@ public:
                 if (t_type != ';') parse_error("';' expected");
                 next_token();
                 if (value >= 0) {
-                    g.set_stat_to_users(bool(value));
+                    parsed_group.set_stat_to_users(bool(value));
                     has_stat_to_users = true;
                 }
             } else if (token == "test_all") {
                 next_token();
                 if (t_type != ';') parse_error("';' expected");
                 next_token();
-                g.set_test_all(true);
+                parsed_group.set_test_all(true);
             } else if (token == "score") {
                 next_token();
                 if (t_type != T_IDENT) parse_error("NUM expected");
@@ -547,7 +547,7 @@ public:
                 next_token();
                 if (t_type != ';') parse_error("';' expected");
                 next_token();
-                g.set_score(score);
+                parsed_group.set_score(score);
             } else if (token == "test_score") {
                 next_token();
                 if (t_type != T_IDENT) parse_error("NUM expected");
@@ -561,7 +561,7 @@ public:
                 next_token();
                 if (t_type != ';') parse_error("';' expected");
                 next_token();
-                g.set_test_score(test_score);
+                parsed_group.set_test_score(test_score);
             } else if (token == "pass_if_count") {
                 next_token();
                 if (t_type != T_IDENT) parse_error("NUM expected");
@@ -575,7 +575,7 @@ public:
                 next_token();
                 if (t_type != ';') parse_error("';' expected");
                 next_token();
-                g.set_pass_if_count(count);
+                parsed_group.set_pass_if_count(count);
             } else if (token == "user_status") {
                 next_token();
                 if (t_type != T_IDENT) parse_error("status expected");
@@ -584,7 +584,7 @@ public:
                 next_token();
                 if (t_type != ';') parse_error("';' expected");
                 next_token();
-                g.set_user_status(user_status);
+                parsed_group.set_user_status(user_status);
             } else {
                 break;
             }
@@ -592,12 +592,12 @@ public:
         if (t_type != '}') parse_error("'}' expected");
         next_token();
         if (!has_stat_to_judges && global.get_stat_to_judges() >= 0) {
-            g.set_stat_to_judges(bool(global.get_stat_to_judges()));
+            parsed_group.set_stat_to_judges(bool(global.get_stat_to_judges()));
         }
         if (!has_stat_to_users && global.get_stat_to_users() >= 0) {
-            g.set_stat_to_users(bool(global.get_stat_to_users()));
+            parsed_group.set_stat_to_users(bool(global.get_stat_to_users()));
         }
-        groups.push_back(g);
+        groups.push_back(parsed_group);
     }
 
     void parse_groups()
