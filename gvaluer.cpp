@@ -54,7 +54,7 @@ enum
 };
 
 static std::unordered_map<std::string, int> string_to_status = { 
-    , { "AC", RUN_ACCEPTED } 
+    { "AC", RUN_ACCEPTED } 
     , { "CE", RUN_COMPILE_ERR }
 		, { "CF", RUN_CHECK_FAILED }
 		, { "DQ", RUN_DISQUALIFIED }
