@@ -809,21 +809,24 @@ void handle_bytest_score(Group *test_group, int test_num)
         if (test_group->is_zero_set()) {
             char buf[BUF_SIZE];
             if (locale_id == 1) {
-                snprintf(buf, sizeof(buf), "Группа тестов %s (%d-%d) оценена в 0 баллов, "
-                                 "так как были пройдены только специальные тесты.\n",
-                                 test_group->get_group_id().c_str(), 
-				 test_group->get_first(), 
-				 test_group->get_last());
-             } else {
-                snprintf(buf, sizeof(buf), "Test group %s (%d-%d) is scored 0 points "
-                                 "because only specific tests were passed.\n",
-                                 test_group->get_group_id().c_str(), 
-				 test_group->get_first(),
-				 test_group->get_last());
-             }
-             test_group->set_total_score(0);
-             test_group->set_comment(std::string(buf));
-         }
+                snprintf(buf, sizeof(buf), 
+                    "Группа тестов %s (%d-%d) оценена в 0 баллов, "
+                    "так как были пройдены только специальные тесты.\n",
+                    test_group->get_group_id().c_str(), 
+				            test_group->get_first(), 
+				            test_group->get_last());
+            } else {
+                snprintf(buf, sizeof(buf), 
+                    "Test group %s (%d-%d) is scored 0 points "
+                    "because only specific tests were passed.\n",
+                    test_group->get_group_id().c_str(), 
+				            test_group->get_first(),
+				            test_group->get_last());
+            }
+        
+            test_group->set_total_score(0);
+            test_group->set_comment(std::string(buf));
+        }
     }
 }
 
