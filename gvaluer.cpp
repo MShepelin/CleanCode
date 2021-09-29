@@ -793,7 +793,7 @@ void environment_setup()
         char *ls = getenv("EJUDGE_LOCALE");
         if (ls) {
             try {
-                locale_id = stoi(ls);
+                locale_id = std::stoi(ls);
             } catch (...) {
             }
             if (locale_id < 0) locale_id = 0;
