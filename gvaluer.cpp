@@ -968,6 +968,20 @@ void print_group_score(const Group &g, FILE *fjcmt, FILE *fcmt)
     }
 }
 
+void analyse_sets_marker_vector(const vector<string> &smv, int &valuer_marked, ConfigParser &parser)
+{
+    if (smv.size() > 0) {
+        bool failed = false;
+        for (const string &gn : smv) {
+            const Group *pg2 = parser.find_group(gn);
+            if (!pg2 || !pg2->is_passed()) {
+                    failed = true;
+                }
+            }
+        if (!failed) valuer_marked = 1;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 3 || argc > 4) die("invalid number of arguments");
@@ -1016,18 +1030,11 @@ int main(int argc, char *argv[])
         if (g.get_sets_marked() && g.is_passed()) {
             valuer_marked = 1;
         }
-        const vector<string> &smv = g.get_sets_marked_if_passed();
-        if (smv.size() > 0) {
-            bool failed = false;
-            for (const string &gn : smv) {
-                const Group *pg2 = parser.find_group(gn);
-                if (!pg2 || !pg2->is_passed()) {
-                    failed = true;
-                }
-            }
-            if (!failed) valuer_marked = 1;
-        }
 
+        const vector<string> &smv = g.get_sets_marked_if_passed();
+        
+	analyse_sets_marker_vector(smv, valuer_marked, parser);
+	
         int group_score = g.calc_score();
 	print_group_score(g, fjcmt, fcmt);
 	
